@@ -1,0 +1,84 @@
+"""
+program: mortgageCalculator.py
+programmer's name: Abdullah Alazzani
+program purpose: This program calculate the monthly payment for a mortgage whith any interest rate
+Date: June 2, 2020
+"""
+import sys
+from PyQt5.QtWidgets import *
+
+class AppDemo(QDialog):
+	def __init__(self):
+		super().__init__()
+
+		self.setWindowTitle("Abdullah's Mortgage Calculator")
+		self.setFixedWidth(500)
+		self.setFixedHeight(400)
+                
+
+		principalLabel = QLabel('Principal Price:')
+		self.principalSpinBox = QDoubleSpinBox()
+		self.principalSpinBox.setRange(0, 100_000_000)
+		self.principalSpinBox.setPrefix('$')
+		self.principalSpinBox.valueChanged.connect(self.calculate_interest)
+
+		downPaymentLabel = QLabel('Down Payment:')
+		self.downPaymentSpinBox = QDoubleSpinBox()
+		self.downPaymentSpinBox.setRange(0, 100_000_000)
+		self.downPaymentSpinBox.setPrefix('$')
+		self.downPaymentSpinBox.valueChanged.connect(self.calculate_interest)
+
+		rateLabel = QLabel('Interest Rate:')
+		self.rateSpinBox = QDoubleSpinBox()
+		self.rateSpinBox.setRange(0, 100) 
+		self.rateSpinBox.setValue(10) 
+		self.rateSpinBox.setSuffix('%')
+		self.rateSpinBox.valueChanged.connect(self.calculate_interest)
+
+		yearLabel = QLabel('Number Of Years:')
+		self.yearsComboBox = QComboBox()
+		self.yearsComboBox.addItem('1 year')
+		self.yearsComboBox.addItems(
+			['{0} years'.format(year) for year in range(2, 100)]
+		)
+		self.yearsComboBox.currentIndexChanged.connect(self.calculate_interest)
+
+		amountLabel = QLabel('The Monthly Payment:')
+		self.dollarLabel = QLabel()
+
+		girdLayout = QGridLayout()
+		girdLayout.addWidget(principalLabel, 0, 0)
+		girdLayout.addWidget(self.principalSpinBox, 0, 1)
+		girdLayout.addWidget(downPaymentLabel, 1, 0)
+		girdLayout.addWidget(self.downPaymentSpinBox, 1, 1)
+		girdLayout.addWidget(rateLabel, 2, 0)
+		girdLayout.addWidget(self.rateSpinBox, 2, 1)
+		girdLayout.addWidget(yearLabel, 3, 0)
+		girdLayout.addWidget(self.yearsComboBox, 3, 1)
+		girdLayout.addWidget(amountLabel, 4, 0)
+		girdLayout.addWidget(self.dollarLabel, 4, 1)
+
+		vLayout = QVBoxLayout()
+		vLayout.addLayout(girdLayout)
+		self.setLayout(vLayout)
+
+		self.calculate_interest()
+
+	def calculate_interest(self):
+		p = self.principalSpinBox.value()
+		d = self.downPaymentSpinBox.value()
+		p -= d
+		r = self.rateSpinBox.value()/100
+		r /= 12
+		y = self.yearsComboBox.currentIndex() + 1
+		y *= 12
+		amt = p*((r*(1+r)**y)/(((1+r)**y)-1))
+		self.dollarLabel.setText('$ {0:.2f}'.format(amt))
+
+if __name__ == '__main__':
+	app = QApplication(sys.argv)
+	screen = QWidget()
+	demo = AppDemo()
+	demo.show()
+
+	sys.exit(app.exec_())
